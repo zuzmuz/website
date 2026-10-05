@@ -4,7 +4,7 @@ import { computed } from 'vue'
 const props = withDefaults(defineProps<{
   min: number
   max: number
-  label: string
+  label?: string
   step?: number
   scale?: 'linear' | 'log'
   defaultValue?: number          // double-click resets to this
@@ -111,13 +111,13 @@ function reset() {
     >
       <svg viewBox="0 0 64 64" class="size-full">
         <path :d="trackPath" fill="none" stroke-width="4" stroke-linecap="round"
-              class="stroke-blue" />
+              class="stroke-blue-600" />
         <path v-if="valuePath" :d="valuePath" fill="none" stroke-width="4" stroke-linecap="round"
               class="stroke-sapphire"/>
         <circle :cx="C" :cy="C" r="15" stroke-width="1"
-                class="fill-slate-50 stroke-slate-300 dark:fill-slate-800 dark:stroke-slate-600" />
+                class="fill-crust-700  stroke-surface0" />
         <line :x1="C" :y1="C" :x2="tip.x" :y2="tip.y" stroke-width="2.5" stroke-linecap="round"
-              class="stroke-slate-700 dark:stroke-slate-200" />
+              class="stroke-sapphire-200" />
       </svg>
     </div>
     <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">{{ label }}</div>
