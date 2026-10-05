@@ -97,7 +97,11 @@ watch(frequency, (f) => {
     }
 })
 watch(gain, (g) => {
-  if (audioContext && gainNode) gainNode.gain.setValueAtTime(g, audioContext.currentTime)
+  if (audioContext && gainNode) {
+    if (playing.value) {
+        gainNode.gain.setValueAtTime(g, audioContext.currentTime)
+    }
+    }
 })
 
 watch(phase, (p) => {

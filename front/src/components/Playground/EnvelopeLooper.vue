@@ -254,11 +254,9 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div class="mx-auto text-muted mt-4">By modulating the frequency or the volume over time, you can create melodies,</div>
-    <div class="mx-auto text-muted mb-8">Try drawing an envelope for the frequency and volume and listen to the melody in loop</div>
-
-
-      <div class="inline-flex p-0.5 mx-auto" role="group" aria-label="Envelope to draw">
+  <div class="grid gap-4">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div class="inline-flex rounded-lg border border-surface1 p-0.5" role="group" aria-label="Envelope to draw">
         <button
           v-for="l in (['frequency', 'volume'] as const)"
           :key="l"
@@ -271,12 +269,11 @@ onBeforeUnmount(() => {
           @click="lane = l"
         >{{ l }}</button>
       </div>
-      <div class="mx-auto text-muted text-sm mb-4">{{ 
-          lane === 'frequency' ? "You are now editing the frequency envelop"
-          : "You are now editing the volume envelop"
-        }}
-    </div>
 
+      <button type="button" class="text-sm text-muted hover:text-fg cursor-pointer" @click="clearLane">
+        Clear {{ lane }}
+      </button>
+    </div>
 
     <canvas
       ref="canvas"
@@ -290,6 +287,23 @@ onBeforeUnmount(() => {
       @pointercancel="onPointerUp"
     />
 
+    <div class="flex items-center justify-center gap-8">
+      <button
+        type="button"
+        :aria-pressed="playing"
+        class="flex items-center justify-center w-30 rounded-xl gap-2.5 py-3.5 font-semibold cursor-pointer
+               bg-sapphire text-crust hover:bg-sapphire-700 shadow-lg shadow-sapphire-300/20"
+        @click="toggle"
+      >
+        <svg viewBox="0 0 16 16" class="size-4 fill-current">
+          <path v-if="playing" d="M2.5 2.5h11v11h-11z" />
+          <path v-else d="M3 1.5v13l11-6.5z" />
+        </svg>
+        <span>{{ playing ? 'Stop' : 'Loop' }}</span>
+      </button>
+
+      <Knob v-model="loopSeconds" :min="0.5" :max="8" :step="0.1"
+            :default-value="2" label="Length" :format="fmtSeconds" />
+    </div>
+  </div>
 </template>
-
-
