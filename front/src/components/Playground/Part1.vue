@@ -97,7 +97,6 @@ watch(frequency, (f) => {
     }
 })
 watch(gain, (g) => {
-    console.log('are we being wached')
   if (audioContext && gainNode) gainNode.gain.setValueAtTime(g, audioContext.currentTime)
 })
 
@@ -107,7 +106,7 @@ watch(phase, (p) => {
 
 // The canvas shows a fixed 10 ms window, so the number of cycles follows the
 // frequency, the height follows the gain and the starting point follows the phase.
-const WINDOW_S = 0.01
+const WINDOW_S = 0.04
 
 function draw(now: number) {
   const el = canvas.value
@@ -122,6 +121,7 @@ function draw(now: number) {
 
   // colours come from the Tailwind classes on the canvas
   const cs = getComputedStyle(el)
+
   ctx.strokeStyle = cs.borderTopColor
   ctx.lineWidth = 1
   // ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2); ctx.stroke()
@@ -134,7 +134,7 @@ function draw(now: number) {
   const cycles = frequency.value * WINDOW_S
 
   ctx.globalAlpha = 0.35 + 0.65 * level // dimmed while paused
-  ctx.strokeStyle = cs.color
+  ctx.strokeStyle = cs.getPropertyValue('--trace').trim()
   ctx.lineWidth = 2
   ctx.beginPath()
   for (let x = 0; x <= w; x++) {
@@ -165,12 +165,9 @@ onBeforeUnmount(() => {
     <button
       type="button"
       :aria-pressed="playing"
-      class="flex items-center justify-center
-             w-30 mx-auto
-             rounded-xl
-             gap-2.5 py-3.5 font-semibold cursor-pointer
-             bg-sapphire text-crust hover:bg-sapphire-700
-             shadow-lg shadow-sapphire-300/20"
+      :class="['flex items-center justify-center w-30 mx-auto rounded-xl text-crust shadow-lg gap-2.5 py-3.5 font-semibold cursor-pointer',
+             playing ? 'bg-maroon hover:bg-maroon-700 shadow-maroon-300/20'
+             : 'bg-sapphire hover:bg-sapphire-700 shadow-sapphire-300/20']"
       @click="toggle"
     >
       <svg viewBox="0 0 16 16" class="size-4 fill-current">
@@ -184,7 +181,10 @@ onBeforeUnmount(() => {
             <canvas
                 ref="canvas"
                 aria-hidden="true"
-                class="block w-full h-30 border-y color-teal border-blue bg-crust shadow-lg shadow-blue/30"
+                class="
+                    block w-full h-30 border-y 
+                    border-blue bg-crust shadow-lg shadow-blue/30
+                    [--trace:var(--color-peach)]"
                 />
         </div>
 
