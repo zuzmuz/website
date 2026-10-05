@@ -12,8 +12,9 @@ const props = withDefaults(defineProps<{
   phase: 0,
 })
 
+const MIN_FREQUENCY = 20 // used for capping delay
 const frequency = ref(props.frequency)
-const gainValue = ref(props.gain)
+const gain = ref(props.gain)
 const phase = ref(props.phase)
 const playing = ref(false)
 const canvas = ref<HTMLCanvasElement | null>(null)
@@ -30,30 +31,51 @@ const fmtDeg = (v: number) => Math.round(v) + '°'
 
 let audioContext: AudioContext | null = null
 let oscillator: OscillatorNode | null = null
+let delayNode: DelayNode | null = null
 let gainNode: GainNode | null = null
+let currentDelay: number = 0
 let rafId = 0, level = 0, last = 0
-
-// OscillatorNode has no phase parameter, so the phase is built into a custom
-// waveform: sin(ωt + φ) = sin φ · cos ωt + cos φ · sin ωt
-function phasedSine(context: AudioContext, deg: number): PeriodicWave {
-  const p = deg * Math.PI / 180
-  const real = new Float32Array([0, Math.sin(p)]) // cosine terms
-  const imag = new Float32Array([0, Math.cos(p)]) // sine terms
-  return context.createPeriodicWave(real, imag, { disableNormalization: true })
-}
 
 function setup(): AudioContext {
   const Ctx = window.AudioContext ?? (window as any).webkitAudioContext
   const context: AudioContext = new Ctx()
   oscillator = context.createOscillator()
-  oscillator.setPeriodicWave(phasedSine(context, phase.value))
+
+  oscillator.setPeriodicWave(
+    context.createPeriodicWave(
+        new Float32Array([0, 0]),
+        new Float32Array([0, 1]),
+        { disableNormalization: true }
+    )
+  )
+
+
   oscillator.frequency.value = frequency.value
+  delayNode = context.createDelay(1 / MIN_FREQUENCY)
+  delayNode.delayTime.value = 0
   gainNode = context.createGain()
   gainNode.gain.value = 0
-  oscillator.connect(gainNode).connect(context.destination)
+  oscillator.connect(delayNode).connect(gainNode).connect(context.destination)
   oscillator.start()
   audioContext = context
   return context
+}
+
+function updatePhase(degree: number) {
+  if (!audioContext || !delayNode) return
+  const period = 1 / frequency.value
+  const frac = ((-degree / 360) % 1 + 1) % 1 // 0–1, how much of a period to delay
+  const d = frac * period
+  const t = audioContext.currentTime
+
+  if (Math.abs(d - currentDelay) > period / 2) {
+    // crossing 0°/360°: a jump of about one full period sounds the same,
+    // so set it directly instead of gliding through the whole cycle
+    delayNode.delayTime.setValueAtTime(d, t)
+  } else {
+    delayNode.delayTime.setTargetAtTime(d, t, 0.02)
+  }
+  currentDelay = d
 }
 
 function rampTo(value: number) {
@@ -68,18 +90,20 @@ async function toggle() {
   const context = audioContext ?? setup()
   if (context.state === 'suspended') await context.resume()
   playing.value = !playing.value
-  rampTo(playing.value ? gainValue.value : 0)
+  rampTo(playing.value ? gain.value : 0)
 }
 
 watch(frequency, (f) => {
-  if (audioContext && oscillator) oscillator.frequency.setTargetAtTime(f, audioContext.currentTime, 0.01)
+  if (audioContext && oscillator) {
+    oscillator.frequency.setTargetAtTime(f, audioContext.currentTime, 0.01)
+    updatePhase(phase.value)
+    }
 })
-watch(gainValue, (g) => {
+watch(gain, (g) => {
   if (audioContext && gainNode) gainNode.gain.setValueAtTime(g, audioContext.currentTime)
-  if (playing.value) rampTo(g)
 })
-watch(phase, (deg) => {
-  if (audioContext && oscillator) oscillator.setPeriodicWave(phasedSine(audioContext, deg))
+watch(phase, (p) => {
+  if (audioContext) updatePhase(p)
 })
 
 // The canvas shows a fixed 10 ms window, so the number of cycles follows the
@@ -106,7 +130,7 @@ function draw(now: number) {
   const dt = (now - last) / 1000; last = now
   level += ((playing.value ? 1 : 0) - level) * Math.min(1, dt * 12)
 
-  const amp = gainValue.value * (h / 2 - 4)
+  const amp = gain.value * (h / 2 - 4)
   const p = phase.value * Math.PI / 180
   const cycles = frequency.value * WINDOW_S
 
@@ -159,7 +183,7 @@ onBeforeUnmount(() => {
     <div class="grid grid-cols-3 gap-2">
       <Knob v-model="frequency" label="Freq" :min="20" :max="2000" scale="log"
             :default-value="440" :format="fmtHz" />
-      <Knob v-model="gainValue" label="Gain" :min="0" :max="1" :step="0.01"
+      <Knob v-model="gain" label="Gain" :min="0" :max="1" :step="0.01"
             :default-value="0.2" :format="fmtGain" />
       <Knob v-model="phase" label="Phase" :min="0" :max="360" :step="1"
             :default-value="0" :format="fmtDeg" />
