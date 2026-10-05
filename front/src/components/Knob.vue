@@ -111,9 +111,9 @@ function reset() {
     >
       <svg viewBox="0 0 64 64" class="size-full">
         <path :d="trackPath" fill="none" stroke-width="4" stroke-linecap="round"
-              class="stroke-slate-200 dark:stroke-slate-700" />
+              class="stroke-blue" />
         <path v-if="valuePath" :d="valuePath" fill="none" stroke-width="4" stroke-linecap="round"
-              class="stroke-teal-700 dark:stroke-teal-400" />
+              class="stroke-sapphire"/>
         <circle :cx="C" :cy="C" r="15" stroke-width="1"
                 class="fill-slate-50 stroke-slate-300 dark:fill-slate-800 dark:stroke-slate-600" />
         <line :x1="C" :y1="C" :x2="tip.x" :y2="tip.y" stroke-width="2.5" stroke-linecap="round"

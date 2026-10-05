@@ -1,0 +1,71 @@
+/* Kanagawa Dragon palette for Tailwind CSS v4.
+   Import this after tailwindcss in your main CSS file:
+     @import "tailwindcss";
+     @import "./kanagawa-dragon.css";
+*/
+
+@theme {
+  /* Uncomment to remove Tailwind's default colours (slate, teal, …)
+     so only this palette is available. */
+  /* --color-*: initial; */
+
+  /* Palette — utilities: bg-rosewater, text-red, border-surface1, … */
+  --color-rosewater: #c8c093;
+  --color-flamingo:  #c8c093;
+  --color-pink:      #f5c2e7;
+  --color-mauve:     #cba6f7;
+  --color-red:       #e46876;
+  --color-maroon:    #c4746e;
+  --color-peach:     #fab387;
+  --color-yellow:    #f9e2af;
+  --color-green:     #87a987;
+  --color-dark-green:#779677;
+  --color-teal:      #94e2d5;
+  --color-sky:       #89dceb;
+  --color-sapphire:  #7aa89f;
+  --color-blue:      #2d4f67;
+  --color-lavender:  #938aa9;
+
+  --color-text:     #d8d8c8;
+  --color-subtext1: #bac2ae;
+  --color-subtext0: #a6ad98;
+  --color-overlay2: #939982;
+  --color-overlay1: #7f847c;
+  --color-overlay0: #6c7066;
+  --color-surface2: #585b50;
+  --color-surface1: #45474a;
+  --color-surface0: #313234;
+  --color-base:     #000000;
+  --color-mantle:   #101019;
+  --color-crust:    #080810;
+}
+
+/* Roles — use these in components so the palette can change in one place.
+   Utilities: bg-bg, bg-panel, border-line, text-fg, text-muted, bg-accent, … */
+@theme inline {
+  --color-bg:        var(--color-base);
+  --color-panel:     var(--color-mantle);
+  --color-raised:    var(--color-surface0);
+  --color-line:      var(--color-surface1);
+  --color-fg:        var(--color-text);
+  --color-muted:     var(--color-overlay1);
+  --color-accent:    var(--color-sapphire);
+  --color-accent-fg: var(--color-crust);   /* text on accent backgrounds */
+  --color-danger:    var(--color-red);
+  --color-success:   var(--color-green);
+  --color-warning:   var(--color-rosewater);
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+  }
+  ::selection {
+    background-color: var(--color-blue);
+    color: var(--color-text);
+  }
+}

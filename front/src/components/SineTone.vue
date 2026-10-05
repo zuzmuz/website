@@ -159,7 +159,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="w-full max-w-md grid gap-5 p-6 rounded-xl border border-slate-300 bg-white text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+  <div class="w-full max-w-md grid gap-5 p-6 rounded-xl border border-slate-300 text-slate-900 dark:border-slate-800  dark:text-slate-100">
     <div class="flex flex-wrap items-baseline justify-between gap-3">
       <div class="font-mono text-4xl font-medium tabular-nums tracking-tight">
         {{ frequency < 100 ? frequency.toFixed(1) : Math.round(frequency) }}<span class="ml-1 text-base text-slate-500 dark:text-slate-400">Hz</span>
