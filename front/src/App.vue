@@ -1,107 +1,29 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+</script>
 
 <template>
-    <div class="max-w-7xl min-h-screen mx-auto px-6 flex flex-col">
-		<header
-			:class="[
-				'sticky top-0 z-50 transition-all duration-300',
-				scrolled ? 'bg-white md:bg-white/80 md:backdrop-blur-md md:shadow-[0_4px_24px_rgba(0,0,0,0.07)]' : 'bg-white',
-				navHidden ? 'md:-translate-y-full' : 'translate-y-0'
-			]"
-		>
-			<div class="py-4 flex items-center justify-between">
-				<!-- Logo Section -->
-				<!-- <router-link to="/" class="hover:opacity-80 transition-opacity"> -->
-				<!-- 	<div class="flex flex-row items-center"> -->
-				<!-- 		<div class="flex items-center"> -->
-				<!-- 			<img src="/logo.png" alt="Logo" class="-ml-3 w-22 h-22 object-contain" /> -->
-				<!-- 		</div> -->
-				<!-- 		<div class="flex flex-col -ml-6"> -->
-				<!-- 			<p class="text-4xl mb-1 font-bold text-gray-900 title-font justified-title">Aya Debes</p> -->
-				<!-- 			<p class="text-xs text-gray-600 justified-title">Illustrator and 2D animator</p> -->
-				<!-- 		</div> -->
-				<!-- 	</div> -->
-				<!-- </router-link> -->
-
-				<!-- Navigation Links -->
-				<nav class="hidden md:flex items-center gap-8 text-sm text-gray-700">
-					<router-link to="/about" class="hover:text-gray-900 transition-colors">About</router-link>
-					<router-link to="/work" class="hover:text-gray-900 transition-colors">Work</router-link>
-					<router-link to="/illustrations"
-						class="hover:text-gray-900 transition-colors">Illustrations</router-link>
-					<router-link to="/animation" class="hover:text-gray-900 transition-colors">Animation</router-link>
-					<router-link to="/shop" class="hover:text-gray-900 transition-colors">Shop</router-link>
-					<router-link to="/contact" class="hover:text-gray-900 transition-colors pr-6">Contact</router-link>
-				</nav>
-
-				<!-- Mobile Menu Button -->
-				<!-- <button @click="toggleMobileMenu" class="md:hidden text-gray-700"> -->
-				<!-- 	<svg v-if="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"> -->
-				<!-- 		<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /> -->
-				<!-- 	</svg> -->
-				<!-- 	<svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"> -->
-				<!-- 		<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /> -->
-				<!-- 	</svg> -->
-				<!-- </button> -->
-			</div>
-
-			<!-- Mobile Menu Dropdown -->
-			<!-- <Transition name="mobile-menu"> -->
-			<!-- 	<div v-if="mobileMenuOpen" class="md:hidden absolute top-full left-0 right-0 bg-white py-4 shadow-lg"> -->
-			<!-- 		<nav class="flex flex-col gap-4"> -->
-			<!-- 			<router-link -->
-			<!-- 				to="/about" -->
-			<!-- 				@click="closeMobileMenu" -->
-			<!-- 				class="text-lg text-gray-700 hover:text-gray-900 transition-colors py-2 mobile-menu-item" -->
-			<!-- 				style="animation-delay: 0.05s" -->
-			<!-- 			> -->
-			<!-- 				About -->
-			<!-- 			</router-link> -->
-			<!-- 			<router-link -->
-			<!-- 				to="/work" -->
-			<!-- 				@click="closeMobileMenu" -->
-			<!-- 				class="text-lg text-gray-700 hover:text-gray-900 transition-colors py-2 mobile-menu-item" -->
-			<!-- 				style="animation-delay: 0.1s" -->
-			<!-- 			> -->
-			<!-- 				Work -->
-			<!-- 			</router-link> -->
-			<!-- 			<router-link -->
-			<!-- 				to="/illustrations" -->
-			<!-- 				@click="closeMobileMenu" -->
-			<!-- 				class="text-lg text-gray-700 hover:text-gray-900 transition-colors py-2 mobile-menu-item" -->
-			<!-- 				style="animation-delay: 0.15s" -->
-			<!-- 			> -->
-			<!-- 				Illustrations -->
-			<!-- 			</router-link> -->
-			<!-- 			<router-link -->
-			<!-- 				to="/animation" -->
-			<!-- 				@click="closeMobileMenu" -->
-			<!-- 				class="text-lg text-gray-700 hover:text-gray-900 transition-colors py-2 mobile-menu-item" -->
-			<!-- 				style="animation-delay: 0.2s" -->
-			<!-- 			> -->
-			<!-- 				Animation -->
-			<!-- 			</router-link> -->
-			<!-- 			<router-link -->
-			<!-- 				to="/shop" -->
-			<!-- 				@click="closeMobileMenu" -->
-			<!-- 				class="text-lg text-gray-700 hover:text-gray-900 transition-colors py-2 mobile-menu-item" -->
-			<!-- 				style="animation-delay: 0.25s" -->
-			<!-- 			> -->
-			<!-- 				Shop -->
-			<!-- 			</router-link> -->
-			<!-- 			<router-link -->
-			<!-- 				to="/contact" -->
-			<!-- 				@click="closeMobileMenu" -->
-			<!-- 				class="text-lg text-gray-700 hover:text-gray-900 transition-colors py-2 mobile-menu-item" -->
-			<!-- 				style="animation-delay: 0.3s" -->
-			<!-- 			> -->
-			<!-- 				Contact -->
-			<!-- 			</router-link> -->
-			<!-- 		</nav> -->
-			<!-- 	</div> -->
-			<!-- </Transition> -->
-		</header>
+      <main class="w-full max-w-md grid gap-5 p-6 rounded-xl border border-slate-300 bg-white dark:border-slate-800 dark:bg-slate-900">
+    <div class="flex flex-wrap items-baseline justify-between gap-3">
+      <div class="font-mono text-4xl font-medium tabular-nums tracking-tight">
+        440<span class="ml-1 text-base text-slate-500 dark:text-slate-400">Hz</span>
+      </div>
+      <div class="font-mono text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400">A4 · sine</div>
     </div>
+ 
+    <canvas id="scope" aria-hidden="true"
+      class="block w-full h-30 rounded-md border border-slate-300 dark:border-slate-700 text-teal-700 dark:text-teal-400"></canvas>
+ 
+    <button id="toggle" type="button" aria-pressed="false"
+      class="flex items-center justify-center gap-2.5 rounded-md py-3.5 font-semibold cursor-pointer
+             bg-teal-700 text-white hover:bg-teal-800
+             dark:bg-teal-400 dark:text-slate-950 dark:hover:bg-teal-300
+             focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:focus-visible:outline-white">
+      <svg id="icon" viewBox="0 0 16 16" class="size-4 fill-current"><path d="M3 1.5v13l11-6.5z"/></svg>
+      <span id="label">Play</span>
+    </button>
+  </main>
 </template>
 
-<style scoped></style>
+<style scoped>
+
+</style>
