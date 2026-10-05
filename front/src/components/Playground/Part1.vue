@@ -198,7 +198,7 @@ onBeforeUnmount(() => {
       <Knob v-model="frequency" :min="20" :max="2000" scale="log"
             :default-value="440" label="Freq" :format="fmtHz" />
       <Knob v-model="gain" :min="0" :max="1" :step="0.01"
-            :default-value="0.2" label="Gain" :format="fmtGain" />
+            :default-value="0.2" label="Vol" :format="fmtGain" />
     </div>
     <div class="mx-auto text-muted my-4">The frequency affects the perceived musical pitch, the volume affects the perceived intensity</div>
 </template>

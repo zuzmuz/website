@@ -258,7 +258,7 @@ onBeforeUnmount(() => {
     <div class="mx-auto text-muted mb-8">Try drawing an envelope for the frequency and volume and listen to the melody in loop</div>
 
 
-      <div class="inline-flex p-0.5 mx-auto" role="group" aria-label="Envelope to draw">
+      <div class="inline-flex p-0.5" role="group" aria-label="Envelope to draw">
         <button
           v-for="l in (['frequency', 'volume'] as const)"
           :key="l"
@@ -270,12 +270,12 @@ onBeforeUnmount(() => {
             : 'text-muted hover:text-fg'"
           @click="lane = l"
         >{{ l }}</button>
-      </div>
-      <div class="mx-auto text-muted text-sm mb-4">{{ 
+      <div class="text-muted text-sm mb-4">{{ 
           lane === 'frequency' ? "You are now editing the frequency envelop"
           : "You are now editing the volume envelop"
         }}
     </div>
+      </div>
 
 
     <canvas
@@ -290,6 +290,26 @@ onBeforeUnmount(() => {
       @pointercancel="onPointerUp"
     />
 
+    <div class="flex items-center justify-center gap-8">
+      <button
+        type="button"
+        :aria-pressed="playing"
+        class="flex items-center justify-center w-30 rounded-xl gap-2.5 py-3.5 font-semibold cursor-pointer
+               bg-sapphire text-crust hover:bg-sapphire-700 shadow-lg shadow-sapphire-300/20"
+        @click="toggle"
+      >
+        <svg viewBox="0 0 16 16" class="size-4 fill-current">
+          <path v-if="playing" d="M2.5 2.5h11v11h-11z" />
+          <path v-else d="M3 1.5v13l11-6.5z" />
+        </svg>
+        <span>{{ playing ? 'Stop' : 'Loop' }}</span>
+      </button>
+
+      <Knob v-model="loopSeconds" :min="0.5" :max="8" :step="0.1"
+            :default-value="2" label="Length" :format="fmtSeconds" />
+    </div>
+
+    <div class="mx-auto text-muted my-4">This is indeed a very tedious way of creating melodies, but it is interesting, isn't it?</div>
+
+
 </template>
-
-
