@@ -302,7 +302,7 @@ onBeforeUnmount(() => {
         <span>{{ playing ? 'Stop' : 'Loop' }}</span>
       </button>
 
-      <Knob v-model="loopSeconds" :min="0.5" :max="8" :step="0.1"
+      <Knob v-model="loopSeconds" :min="0.5" :max="16" :step="0.1"
             :default-value="2" label="Length" :format="fmtSeconds" />
     </div>
   </div>

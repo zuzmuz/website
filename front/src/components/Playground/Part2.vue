@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import Knob from '@/components/Knob.vue'
+import PresetSelector from './PresetSelector.vue'
 import { unlockAudioContext } from '@/audio'
 
 const props = withDefaults(
@@ -38,12 +39,8 @@ const hzToNorm = (hz: number) =>
 const fmtSeconds = (v: number) => v.toFixed(1) + ' s'
 
 function resetEnvelopes() {
-  // a rise from 220 Hz to 440 Hz with a volume that fades over each loop
-  for (let i = 0; i < N; i++) {
-    const x = i / (N - 1)
-    freqEnv[i] = hzToNorm(220 * Math.pow(2, x))
-    volEnv[i] = 0.9 - 0.6 * x
-  }
+  freqEnv.fill(hzToNorm(440))
+  volEnv.fill(0.5)
 }
 resetEnvelopes()
 
@@ -188,6 +185,17 @@ function onPointerUp() {
   drawing = false
 }
 
+const presets = [
+  { id: 'scale', label: 'Major scale' },
+  { id: 'siren', label: 'Siren' },
+  { id: 'zetafya', label: 'Zeit Afia' },
+]
+const preset = ref('')
+
+watch(preset, (id) => {
+  // load the melody into freqEnv / volEnv here
+})
+
 /* ---------- rendering ---------- */
 
 let rafId = 0
@@ -312,43 +320,6 @@ onBeforeUnmount(() => {
     Try drawing an envelope for the frequency and volume and listen to the melody in loop
   </div>
 
-  <div class="inline-flex p-0.5" role="group" aria-label="Envelope to draw">
-    <button
-      v-for="l in ['frequency', 'volume'] as const"
-      :key="l"
-      type="button"
-      :aria-pressed="lane === l"
-      class="rounded-md px-3 py-1.5 text-sm font-semibold capitalize cursor-pointer"
-      :class="
-        lane === l
-          ? l === 'frequency'
-            ? 'bg-sapphire text-crust'
-            : 'bg-flamingo text-crust'
-          : 'text-muted hover:text-fg'
-      "
-      @click="lane = l"
-    >
-      {{ l }}
-    </button>
-    <div class="text-muted text-sm mb-4">
-      {{
-        lane === 'frequency'
-          ? 'You are now editing the frequency envelop'
-          : 'You are now editing the volume envelop'
-      }}
-    </div>
-  </div>
-
-  <canvas
-    ref="canvas"
-    :aria-label="`Draw the ${lane} envelope`"
-    class="block w-full h-48 touch-none cursor-crosshair border-y border-blue bg-crust shadow-lg shadow-blue/30 [--freq:var(--color-sapphire)] [--vol:var(--color-flamingo)] [--grid:var(--color-surface0)] [--label:var(--color-overlay0)] [--head:var(--color-red)]"
-    @pointerdown="onPointerDown"
-    @pointermove="onPointerMove"
-    @pointerup="onPointerUp"
-    @pointercancel="onPointerUp"
-  />
-
   <div class="flex items-center justify-center gap-8">
     <button
       type="button"
@@ -363,6 +334,8 @@ onBeforeUnmount(() => {
       <span>{{ playing ? 'Stop' : 'Loop' }}</span>
     </button>
 
+    <!-- <span>Control the loop duration</span> -->
+
     <Knob
       v-model="loopSeconds"
       :min="0.5"
@@ -372,6 +345,61 @@ onBeforeUnmount(() => {
       label="Length"
       :format="fmtSeconds"
     />
+  </div>
+
+  <canvas
+    ref="canvas"
+    :aria-label="`Draw the ${lane} envelope`"
+    class="block w-full h-48 touch-none cursor-crosshair border-y border-blue bg-crust shadow-lg shadow-blue/30 [--freq:var(--color-sapphire)] [--vol:var(--color-flamingo)] [--grid:var(--color-surface0)] [--label:var(--color-overlay0)] [--head:var(--color-red)]"
+    @pointerdown="onPointerDown"
+    @pointermove="onPointerMove"
+    @pointerup="onPointerUp"
+    @pointercancel="onPointerUp"
+  />
+
+  <div class="flex items-center justify-between gap-3">
+    <div class="inline-flex p-0.5" role="group" aria-label="Envelope to draw">
+      <button
+        v-for="l in ['frequency', 'volume'] as const"
+        :key="l"
+        type="button"
+        :aria-pressed="lane === l"
+        class="rounded-md px-3 py-1.5 text-sm font-semibold capitalize cursor-pointer"
+        :class="
+          lane === l
+            ? l === 'frequency'
+              ? 'bg-sapphire text-crust'
+              : 'bg-flamingo text-crust'
+            : 'text-muted hover:text-fg'
+        "
+        @click="lane = l"
+      >
+        {{ l }}
+      </button>
+
+      <button
+        type="button"
+        class="rounded-md px-3 py-1.5 ml-2 text-sm text-muted bg-surface0 hover:text-fg hover:bg-surface1 cursor-pointer"
+        @click="clearLane"
+      >
+        Reset {{ lane }}
+      </button>
+    </div>
+    <div class="ml-auto">
+      <PresetSelector
+        v-model="preset"
+        :options="presets"
+        placeholder="Choose ..."
+        label="Select famous melody"
+      />
+    </div>
+  </div>
+  <div class="text-muted text-sm mb-4">
+    {{
+      lane === 'frequency'
+        ? 'You are now editing the frequency envelop'
+        : 'You are now editing the volume envelop'
+    }}
   </div>
 
   <div class="mx-auto text-muted my-4">

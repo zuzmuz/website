@@ -162,7 +162,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   cancelAnimationFrame(rafId)
-  if (audioContext) audioContext.close()
+  if (oscillator) oscillator.stop()
 })
 </script>
 
