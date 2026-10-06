@@ -2,14 +2,17 @@
 import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import { unlockAudioContext } from '@/audio'
 
-const props = withDefaults(defineProps<{
-  src: string        // URL of the .wav file
-  loop?: boolean
-  gain?: number      // 0–1
-}>(), {
-  loop: false,
-  gain: 1,
-})
+const props = withDefaults(
+  defineProps<{
+    src: string // URL of the .wav file
+    loop?: boolean
+    gain?: number // 0–1
+  }>(),
+  {
+    loop: false,
+    gain: 1,
+  },
+)
 
 const playing = ref(false)
 const loading = ref(false)
@@ -21,8 +24,8 @@ let ac: AudioContext | null = null
 let buffer: AudioBuffer | null = null
 let source: AudioBufferSourceNode | null = null
 let gainNode: GainNode | null = null
-let startedAt = 0  // context time that corresponds to position 0 of the current run
-let offset = 0     // where in the file to resume from
+let startedAt = 0 // context time that corresponds to position 0 of the current run
+let offset = 0 // where in the file to resume from
 let rafId = 0
 
 const FADE = 0.015 // short fades avoid clicks on play/pause
@@ -117,24 +120,38 @@ function toggle() {
 }
 
 // a new file: stop and forget the decoded one
-watch(() => props.src, () => {
-  if (playing.value) pause()
-  buffer = null
-  offset = 0
-  position.value = 0
-  duration.value = 0
-})
-watch(() => props.loop, (l) => { if (source) source.loop = l })
-watch(() => props.gain, (g) => {
-  if (ac && gainNode) gainNode.gain.setTargetAtTime(g, ac.currentTime, 0.02)
-})
+watch(
+  () => props.src,
+  () => {
+    if (playing.value) pause()
+    buffer = null
+    offset = 0
+    position.value = 0
+    duration.value = 0
+  },
+)
+watch(
+  () => props.loop,
+  (l) => {
+    if (source) source.loop = l
+  },
+)
+watch(
+  () => props.gain,
+  (g) => {
+    if (ac && gainNode) gainNode.gain.setTargetAtTime(g, ac.currentTime, 0.02)
+  },
+)
 
 onBeforeUnmount(() => {
   if (playing.value) pause()
   cancelAnimationFrame(rafId)
 })
 
-const fmt = (s: number) => `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`
+const fmt = (s: number) =>
+  `${Math.floor(s / 60)}:${Math.floor(s % 60)
+    .toString()
+    .padStart(2, '0')}`
 const progress = computed(() => (duration.value ? position.value / duration.value : 0))
 </script>
 
@@ -145,8 +162,7 @@ const progress = computed(() => (duration.value ? position.value / duration.valu
       :aria-pressed="playing"
       :aria-label="playing ? 'Pause' : 'Play'"
       :disabled="loading"
-      class="grid size-10 shrink-0 place-items-center rounded-full cursor-pointer
-             bg-sapphire text-crust hover:bg-sapphire-700 disabled:opacity-50 disabled:cursor-wait"
+      class="grid size-10 shrink-0 place-items-center rounded-full cursor-pointer bg-sapphire text-crust hover:bg-sapphire-700 disabled:opacity-50 disabled:cursor-wait"
       @click="toggle"
     >
       <svg viewBox="0 0 16 16" class="size-4 fill-current">

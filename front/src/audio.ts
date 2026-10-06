@@ -10,3 +10,11 @@ export async function unlockAudioContext() {
     if (c.state === 'suspended') await c.resume()
     return c
 }
+
+export async function loadAudioFromSource(src: string): Promise<AudioBuffer> {
+    const res = await fetch(src)
+    if (!res.ok) throw new Error(`Could not load ${src} (${res.status})`)
+    const context = await unlockAudioContext()
+    const buffer = await context.decodeAudioData(await res.arrayBuffer())
+    return buffer
+}

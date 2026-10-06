@@ -6,7 +6,7 @@ import WavPlayer from '@/components/Playground/WavPlayer.vue';
 </script>
 
 <template>
-  <main class="max-w grid mt-12 px-12">
+  <main class="max-w grid mt-12">
     <Part1 />
     <h1 class="text-lg text-accent mx-auto my-4">Cool, now on to something else</h1>
     <Part2 />
