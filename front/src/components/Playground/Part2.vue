@@ -13,8 +13,8 @@ const props = withDefaults(
     maxGain?: number // output level when the drawn volume is at the top
   }>(),
   {
-    minFrequency: 50,
-    maxFrequency: 2000,
+    minFrequency: getFrequency(7, 2),
+    maxFrequency: getFrequency(0, 5),
     loopSeconds: 2,
     maxGain: 0.3,
   },
@@ -24,7 +24,7 @@ type Lane = 'frequency' | 'volume'
 
 // Each envelope is N points spread evenly over one loop, stored as 0–1.
 // Frequency is mapped on a log scale, volume linearly.
-const N = 200
+const N = 400
 const freqEnv = new Float32Array(N)
 const volEnv = new Float32Array(N)
 
@@ -188,21 +188,45 @@ function onPointerUp() {
 
 const presets = [
   { id: 'scale', label: 'Major scale' },
-  { id: 'siren', label: 'Siren' },
+  // { id: 'siren', label: 'Siren' },
   { id: 'zetafya', label: 'Zeit Afia' },
 ]
 const preset = ref('')
-const melodies: { [id: string] : Note[]; } = {
-  scale: [
-    { pitch: 0, octave: 3, duration: 1 },
-    { pitch: 2, octave: 3, duration: 1 },
-    { pitch: 4, octave: 3, duration: 1 },
-    { pitch: 5, octave: 3, duration: 1 },
-    { pitch: 7, octave: 3, duration: 1 },
-    { pitch: 9, octave: 3, duration: 1 },
-    { pitch: 11, octave: 3, duration: 1 },
-    { pitch: 0, octave: 4, duration: 1 },
-  ],
+const melodies: { [id: string]: { notes: Note[]; length: number } } = {
+  scale: {
+    notes: [
+      { pitch: 0, octave: 3, duration: 1 },
+      { pitch: 2, octave: 3, duration: 1 },
+      { pitch: 4, octave: 3, duration: 1 },
+      { pitch: 5, octave: 3, duration: 1 },
+      { pitch: 7, octave: 3, duration: 1 },
+      { pitch: 9, octave: 3, duration: 1 },
+      { pitch: 11, octave: 3, duration: 1 },
+      { pitch: 0, octave: 4, duration: 1 },
+    ],
+    length: 4,
+  },
+
+  zetafya: {
+    notes: [
+      { pitch: 9, octave: 3, duration: 1 },
+      { pitch: 9, octave: 3, duration: 1 },
+      { pitch: 10.5, octave: 3, duration: 2 },
+      { pitch: 0, octave: 4, duration: 2 },
+      { pitch: 0, octave: 4, duration: 1 },
+      { pitch: 9, octave: 3, duration: 1 },
+      { pitch: 10.5, octave: 3, duration: 8 },
+      { pitch: 9, octave: 3, duration: 1 },
+      { pitch: 9, octave: 3, duration: 1 },
+      { pitch: 10.5, octave: 3, duration: 2 },
+      { pitch: 0, octave: 4, duration: 2 },
+      { pitch: 0, octave: 4, duration: 1 },
+      { pitch: 9, octave: 3, duration: 1 },
+      { pitch: 10.5, octave: 3, duration: 4 },
+      { pitch: 2, octave: 4, duration: 4 },
+    ],
+    length: 6,
+  },
 }
 
 watch(preset, (id) => {
@@ -210,26 +234,27 @@ watch(preset, (id) => {
 
   if (!melody) return
 
-  const melodyLength = melody.reduce((acc, note) => {
+  const melodyLength = melody.notes.reduce((acc, note) => {
     return acc + note.duration
   }, 0)
 
   let offset = 0
-  melody.forEach((note) => {
+  melody.notes.forEach((note) => {
     const noteEnd = offset + (N * note.duration) / melodyLength
     freqEnv.fill(
       hzToNorm(getFrequency(note.pitch, note.octave)),
-      offset,
-      noteEnd
+      Math.round(offset),
+      Math.round(noteEnd),
     )
 
-
-    for (let i = offset; i < noteEnd; ++i) {
-        volEnv[i] = - (i - offset) * 0.5 / (noteEnd - offset) + 0.5
+    for (let i = Math.round(offset); i < Math.round(noteEnd); ++i) {
+      volEnv[i] = (-(i - offset) * 0.5) / (noteEnd - offset) + 0.5
     }
 
     offset = noteEnd
   })
+
+  loopSeconds.value = melody.length
 })
 
 /* ---------- rendering ---------- */
@@ -291,7 +316,7 @@ function draw() {
   ctx.lineWidth = 1
   const marks: [number, string][] =
     lane.value === 'frequency'
-      ? [100, 200, 500, 1000]
+      ? [100, 150, 200, 300, 400, 500, 1000]
           .filter((f) => f > props.minFrequency && f < props.maxFrequency)
           .map((f) => [hzToNorm(f), f >= 1000 ? `${f / 1000}k Hz` : `${f} Hz`])
       : [
