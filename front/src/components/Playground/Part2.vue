@@ -188,7 +188,7 @@ function onPointerUp() {
 
 const presets = [
   { id: 'scale', label: 'Major scale' },
-  // { id: 'siren', label: 'Siren' },
+  { id: 'siren', label: 'Siren' },
   { id: 'zetafya', label: 'Zeit Afia' },
 ]
 const preset = ref('')
@@ -230,8 +230,15 @@ const melodies: { [id: string]: { notes: Note[]; length: number } } = {
 }
 
 watch(preset, (id) => {
-  const melody = melodies[id]
+  if (id === 'siren') {
+    for (let i = 0; i < N; ++i) {
+      freqEnv[i] = hzToNorm((0.18 * Math.cos((4 * Math.PI * i) / N) + 1) * 330)
+      volEnv[i] = 0.3
+    }
+    return
+  }
 
+  const melody = melodies[id]
   if (!melody) return
 
   const melodyLength = melody.notes.reduce((acc, note) => {
@@ -385,7 +392,12 @@ onBeforeUnmount(() => {
     <button
       type="button"
       :aria-pressed="playing"
-      class="flex items-center justify-center w-30 rounded-xl gap-2.5 py-3.5 font-semibold cursor-pointer bg-sapphire text-crust hover:bg-sapphire-700 shadow-lg shadow-sapphire-300/20"
+      :class="[
+        'flex items-center justify-center w-30 rounded-xl gap-2.5 py-3.5 font-semibold cursor-pointer text-crust',
+        playing
+          ? 'bg-maroon hover:bg-maroon-700 shadow-maroon-300/20'
+          : 'bg-sapphire hover:bg-sapphire-700 shadow-lg shadow-sapphire-300/20',
+      ]"
       @click="toggle"
     >
       <svg viewBox="0 0 16 16" class="size-4 fill-current">
