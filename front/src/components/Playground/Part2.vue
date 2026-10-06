@@ -3,17 +3,20 @@ import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import Knob from '@/components/Knob.vue'
 import { unlockAudioContext } from '@/audio'
 
-const props = withDefaults(defineProps<{
-  minFrequency?: number
-  maxFrequency?: number
-  loopSeconds?: number // starting loop length; the knob takes over
-  maxGain?: number     // output level when the drawn volume is at the top
-}>(), {
-  minFrequency: 50,
-  maxFrequency: 2000,
-  loopSeconds: 2,
-  maxGain: 0.3,
-})
+const props = withDefaults(
+  defineProps<{
+    minFrequency?: number
+    maxFrequency?: number
+    loopSeconds?: number // starting loop length; the knob takes over
+    maxGain?: number // output level when the drawn volume is at the top
+  }>(),
+  {
+    minFrequency: 50,
+    maxFrequency: 2000,
+    loopSeconds: 2,
+    maxGain: 0.3,
+  },
+)
 
 type Lane = 'frequency' | 'volume'
 
@@ -28,8 +31,10 @@ const loopSeconds = ref(props.loopSeconds)
 const playing = ref(false)
 const canvas = ref<HTMLCanvasElement | null>(null)
 
-const normToHz = (t: number) => props.minFrequency * Math.pow(props.maxFrequency / props.minFrequency, t)
-const hzToNorm = (hz: number) => Math.log(hz / props.minFrequency) / Math.log(props.maxFrequency / props.minFrequency)
+const normToHz = (t: number) =>
+  props.minFrequency * Math.pow(props.maxFrequency / props.minFrequency, t)
+const hzToNorm = (hz: number) =>
+  Math.log(hz / props.minFrequency) / Math.log(props.maxFrequency / props.minFrequency)
 const fmtSeconds = (v: number) => v.toFixed(1) + ' s'
 
 function resetEnvelopes() {
@@ -76,7 +81,11 @@ function scheduleLoops() {
     const d = loopSeconds.value
     // the curve is copied when scheduled, so edits apply from the next loop
     osc.frequency.setValueCurveAtTime(curve(freqEnv, normToHz), nextStart, d - 1e-4)
-    envGain.gain.setValueCurveAtTime(curve(volEnv, (v) => v), nextStart, d - 1e-4)
+    envGain.gain.setValueCurveAtTime(
+      curve(volEnv, (v) => v),
+      nextStart,
+      d - 1e-4,
+    )
     scheduled.push({ start: nextStart, duration: d })
     nextStart += d
   }
@@ -117,10 +126,18 @@ function stop() {
   master.gain.cancelScheduledValues(t)
   master.gain.setValueAtTime(master.gain.value, t)
   master.gain.linearRampToValueAtTime(0, t + 0.03)
-  const o = osc, e = envGain, m = master
-  o.onended = () => { o.disconnect(); e?.disconnect(); m.disconnect() }
+  const o = osc,
+    e = envGain,
+    m = master
+  o.onended = () => {
+    o.disconnect()
+    e?.disconnect()
+    m.disconnect()
+  }
   o.stop(t + 0.05)
-  osc = null; envGain = null; master = null
+  osc = null
+  envGain = null
+  master = null
   scheduled = []
 }
 
@@ -145,15 +162,17 @@ function pointToEnv(e: PointerEvent): [number, number] {
 function paint(e: PointerEvent) {
   const env = lane.value === 'frequency' ? freqEnv : volEnv
   const [i, v] = pointToEnv(e)
-  if (lastIndex < 0) { env[i] = v }
-  else {
+  if (lastIndex < 0) {
+    env[i] = v
+  } else {
     const steps = Math.abs(i - lastIndex)
     for (let s = 0; s <= steps; s++) {
       const k = steps === 0 ? 1 : s / steps
       env[Math.round(lastIndex + (i - lastIndex) * k)] = lastValue + (v - lastValue) * k
     }
   }
-  lastIndex = i; lastValue = v
+  lastIndex = i
+  lastValue = v
 }
 
 function onPointerDown(e: PointerEvent) {
@@ -162,8 +181,12 @@ function onPointerDown(e: PointerEvent) {
   lastIndex = -1
   paint(e)
 }
-function onPointerMove(e: PointerEvent) { if (drawing) paint(e) }
-function onPointerUp() { drawing = false }
+function onPointerMove(e: PointerEvent) {
+  if (drawing) paint(e)
+}
+function onPointerUp() {
+  drawing = false
+}
 
 /* ---------- rendering ---------- */
 
@@ -173,11 +196,23 @@ let colors = { freq: '', vol: '', grid: '', label: '', head: '' }
 function readColors() {
   const cs = getComputedStyle(canvas.value!)
   const v = (n: string) => cs.getPropertyValue(n).trim()
-  colors = { freq: v('--freq'), vol: v('--vol'), grid: v('--grid'), label: v('--label'), head: v('--head') }
+  colors = {
+    freq: v('--freq'),
+    vol: v('--vol'),
+    grid: v('--grid'),
+    label: v('--label'),
+    head: v('--head'),
+  }
 }
 
-function strokeEnv(ctx: CanvasRenderingContext2D, env: Float32Array, w: number, h: number,
-                   color: string, active: boolean) {
+function strokeEnv(
+  ctx: CanvasRenderingContext2D,
+  env: Float32Array,
+  w: number,
+  h: number,
+  color: string,
+  active: boolean,
+) {
   ctx.globalAlpha = active ? 1 : 0.35
   ctx.strokeStyle = color
   ctx.lineWidth = active ? 2.5 : 1.5
@@ -197,9 +232,11 @@ function draw() {
   const ctx = el?.getContext('2d')
   if (!el || !ctx) return
   const dpr = window.devicePixelRatio || 1
-  const w = el.clientWidth, h = el.clientHeight
+  const w = el.clientWidth,
+    h = el.clientHeight
   if (el.width !== Math.round(w * dpr) || el.height !== Math.round(h * dpr)) {
-    el.width = Math.round(w * dpr); el.height = Math.round(h * dpr)
+    el.width = Math.round(w * dpr)
+    el.height = Math.round(h * dpr)
   }
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
   ctx.clearRect(0, 0, w, h)
@@ -208,14 +245,23 @@ function draw() {
   ctx.font = '10px ui-monospace, monospace'
   ctx.textBaseline = 'bottom'
   ctx.lineWidth = 1
-  const marks: [number, string][] = lane.value === 'frequency'
-    ? [100, 200, 500, 1000].filter((f) => f > props.minFrequency && f < props.maxFrequency)
-        .map((f) => [hzToNorm(f), f >= 1000 ? `${f / 1000}k Hz` : `${f} Hz`])
-    : [[0.25, '25%'], [0.5, '50%'], [0.75, '75%']]
+  const marks: [number, string][] =
+    lane.value === 'frequency'
+      ? [100, 200, 500, 1000]
+          .filter((f) => f > props.minFrequency && f < props.maxFrequency)
+          .map((f) => [hzToNorm(f), f >= 1000 ? `${f / 1000}k Hz` : `${f} Hz`])
+      : [
+          [0.25, '25%'],
+          [0.5, '50%'],
+          [0.75, '75%'],
+        ]
   for (const [t, text] of marks) {
     const y = Math.round((1 - t) * h) + 0.5
     ctx.strokeStyle = colors.grid
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke()
+    ctx.beginPath()
+    ctx.moveTo(0, y)
+    ctx.lineTo(w, y)
+    ctx.stroke()
     ctx.fillStyle = colors.label
     ctx.fillText(text, 4, y - 2)
   }
@@ -233,14 +279,19 @@ function draw() {
       const x = Math.round(((now - loop.start) / loop.duration) * w) + 0.5
       ctx.strokeStyle = colors.head
       ctx.lineWidth = 1.5
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke()
+      ctx.beginPath()
+      ctx.moveTo(x, 0)
+      ctx.lineTo(x, h)
+      ctx.stroke()
     }
   }
 
   rafId = requestAnimationFrame(draw)
 }
 
-watch(lane, () => { drawing = false })
+watch(lane, () => {
+  drawing = false
+})
 
 onMounted(() => {
   readColors()
@@ -254,62 +305,76 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div class="mx-auto text-muted mt-4">By modulating the frequency or the volume over time, you can create melodies,</div>
-    <div class="mx-auto text-muted mb-8">Try drawing an envelope for the frequency and volume and listen to the melody in loop</div>
+  <div class="mx-auto text-muted mt-4">
+    By modulating the frequency or the volume over time, you can create melodies,
+  </div>
+  <div class="mx-auto text-muted mb-8">
+    Try drawing an envelope for the frequency and volume and listen to the melody in loop
+  </div>
 
-
-      <div class="inline-flex p-0.5" role="group" aria-label="Envelope to draw">
-        <button
-          v-for="l in (['frequency', 'volume'] as const)"
-          :key="l"
-          type="button"
-          :aria-pressed="lane === l"
-          class="rounded-md px-3 py-1.5 text-sm font-semibold capitalize cursor-pointer"
-          :class="lane === l
-            ? (l === 'frequency' ? 'bg-sapphire text-crust' : 'bg-flamingo text-crust')
-            : 'text-muted hover:text-fg'"
-          @click="lane = l"
-        >{{ l }}</button>
-      <div class="text-muted text-sm mb-4">{{ 
-          lane === 'frequency' ? "You are now editing the frequency envelop"
-          : "You are now editing the volume envelop"
-        }}
+  <div class="inline-flex p-0.5" role="group" aria-label="Envelope to draw">
+    <button
+      v-for="l in ['frequency', 'volume'] as const"
+      :key="l"
+      type="button"
+      :aria-pressed="lane === l"
+      class="rounded-md px-3 py-1.5 text-sm font-semibold capitalize cursor-pointer"
+      :class="
+        lane === l
+          ? l === 'frequency'
+            ? 'bg-sapphire text-crust'
+            : 'bg-flamingo text-crust'
+          : 'text-muted hover:text-fg'
+      "
+      @click="lane = l"
+    >
+      {{ l }}
+    </button>
+    <div class="text-muted text-sm mb-4">
+      {{
+        lane === 'frequency'
+          ? 'You are now editing the frequency envelop'
+          : 'You are now editing the volume envelop'
+      }}
     </div>
-      </div>
+  </div>
 
+  <canvas
+    ref="canvas"
+    :aria-label="`Draw the ${lane} envelope`"
+    class="block w-full h-48 touch-none cursor-crosshair border-y border-blue bg-crust shadow-lg shadow-blue/30 [--freq:var(--color-sapphire)] [--vol:var(--color-flamingo)] [--grid:var(--color-surface0)] [--label:var(--color-overlay0)] [--head:var(--color-red)]"
+    @pointerdown="onPointerDown"
+    @pointermove="onPointerMove"
+    @pointerup="onPointerUp"
+    @pointercancel="onPointerUp"
+  />
 
-    <canvas
-      ref="canvas"
-      :aria-label="`Draw the ${lane} envelope`"
-      class="block w-full h-48 touch-none cursor-crosshair border-y border-blue bg-crust shadow-lg shadow-blue/30
-             [--freq:var(--color-sapphire)] [--vol:var(--color-flamingo)]
-             [--grid:var(--color-surface0)] [--label:var(--color-overlay0)] [--head:var(--color-red)]"
-      @pointerdown="onPointerDown"
-      @pointermove="onPointerMove"
-      @pointerup="onPointerUp"
-      @pointercancel="onPointerUp"
+  <div class="flex items-center justify-center gap-8">
+    <button
+      type="button"
+      :aria-pressed="playing"
+      class="flex items-center justify-center w-30 rounded-xl gap-2.5 py-3.5 font-semibold cursor-pointer bg-sapphire text-crust hover:bg-sapphire-700 shadow-lg shadow-sapphire-300/20"
+      @click="toggle"
+    >
+      <svg viewBox="0 0 16 16" class="size-4 fill-current">
+        <path v-if="playing" d="M2.5 2.5h11v11h-11z" />
+        <path v-else d="M3 1.5v13l11-6.5z" />
+      </svg>
+      <span>{{ playing ? 'Stop' : 'Loop' }}</span>
+    </button>
+
+    <Knob
+      v-model="loopSeconds"
+      :min="0.5"
+      :max="8"
+      :step="0.1"
+      :default-value="2"
+      label="Length"
+      :format="fmtSeconds"
     />
+  </div>
 
-    <div class="flex items-center justify-center gap-8">
-      <button
-        type="button"
-        :aria-pressed="playing"
-        class="flex items-center justify-center w-30 rounded-xl gap-2.5 py-3.5 font-semibold cursor-pointer
-               bg-sapphire text-crust hover:bg-sapphire-700 shadow-lg shadow-sapphire-300/20"
-        @click="toggle"
-      >
-        <svg viewBox="0 0 16 16" class="size-4 fill-current">
-          <path v-if="playing" d="M2.5 2.5h11v11h-11z" />
-          <path v-else d="M3 1.5v13l11-6.5z" />
-        </svg>
-        <span>{{ playing ? 'Stop' : 'Loop' }}</span>
-      </button>
-
-      <Knob v-model="loopSeconds" :min="0.5" :max="8" :step="0.1"
-            :default-value="2" label="Length" :format="fmtSeconds" />
-    </div>
-
-    <div class="mx-auto text-muted my-4">This is indeed a very tedious way of creating melodies, but it is interesting, isn't it?</div>
-
-
+  <div class="mx-auto text-muted my-4">
+    This is indeed a very tedious way of creating melodies, but it is interesting, isn't it?
+  </div>
 </template>
