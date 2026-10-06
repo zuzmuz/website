@@ -3,6 +3,7 @@ import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import Knob from '@/components/Knob.vue'
 import PresetSelector from './PresetSelector.vue'
 import { unlockAudioContext } from '@/audio'
+import { getFrequency, type Note } from '@/music'
 
 const props = withDefaults(
   defineProps<{
@@ -191,9 +192,44 @@ const presets = [
   { id: 'zetafya', label: 'Zeit Afia' },
 ]
 const preset = ref('')
+const melodies: { [id: string] : Note[]; } = {
+  scale: [
+    { pitch: 0, octave: 3, duration: 1 },
+    { pitch: 2, octave: 3, duration: 1 },
+    { pitch: 4, octave: 3, duration: 1 },
+    { pitch: 5, octave: 3, duration: 1 },
+    { pitch: 7, octave: 3, duration: 1 },
+    { pitch: 9, octave: 3, duration: 1 },
+    { pitch: 11, octave: 3, duration: 1 },
+    { pitch: 0, octave: 4, duration: 1 },
+  ],
+}
 
 watch(preset, (id) => {
-  // load the melody into freqEnv / volEnv here
+  const melody = melodies[id]
+
+  if (!melody) return
+
+  const melodyLength = melody.reduce((acc, note) => {
+    return acc + note.duration
+  }, 0)
+
+  let offset = 0
+  melody.forEach((note) => {
+    const noteEnd = offset + (N * note.duration) / melodyLength
+    freqEnv.fill(
+      hzToNorm(getFrequency(note.pitch, note.octave)),
+      offset,
+      noteEnd
+    )
+
+
+    for (let i = offset; i < noteEnd; ++i) {
+        volEnv[i] = - (i - offset) * 0.5 / (noteEnd - offset) + 0.5
+    }
+
+    offset = noteEnd
+  })
 })
 
 /* ---------- rendering ---------- */
