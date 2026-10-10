@@ -14,31 +14,31 @@ const closeMobileMenu = () => {
   mobileMenuOpen.value = false
 }
 
-const handleScroll = () => {
-  const currentScrollY = window.scrollY
-  scrolled.value = currentScrollY > 20
-  if (currentScrollY > lastScrollY && currentScrollY > 80) {
-    navHidden.value = true
-  } else {
-    navHidden.value = false
-  }
-  lastScrollY = currentScrollY
-}
+// const handleScroll = () => {
+//   const currentScrollY = window.scrollY
+//   scrolled.value = currentScrollY > 20
+//   if (currentScrollY > lastScrollY && currentScrollY > 80) {
+//     navHidden.value = true
+//   } else {
+//     navHidden.value = false
+//   }
+//   lastScrollY = currentScrollY
+// }
 
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll, { passive: true })
-})
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
-})
+// onMounted(() => {
+//   window.addEventListener('scroll', handleScroll, { passive: true })
+// })
+//
+// onUnmounted(() => {
+//   window.removeEventListener('scroll', handleScroll)
+// })
 </script>
 
 <template>
-  <div class="max-w min-h-screen bg-panel mx-auto flex flex-col">
+  <div class="max-w min-h-screen bg-panel flex flex-col">
     <header
       :class="[
-        'sticky mx-auto top-0 z-50 transition-all duration-300',
+        'sticky max-w top-0 px-12 z-50 transition-all duration-300',
         scrolled
           ? 'bg-panel md:backdrop-blur-md md:shadow-[0_4px_24px_rgba(0,0,0,0.07)]'
           : 'bg-panel',
@@ -47,13 +47,23 @@ onUnmounted(() => {
     >
       <div class="py-4 flex items-center justify-between">
         <!-- Navigation Links -->
-        <nav class="hidden md:flex items-center gap-8 text-sm text-muted">
-          <router-link to="/" class="hover:text-fg transition-colors">Home</router-link>
-          <router-link to="/playground" class="hover:text-fg transition-colors"
+        <nav class="hidden md:flex items-center gap-8 text-sm">
+          <router-link to="/" class="hover:text-fg transition-colors"
+            ><img src="/svg/icon.svg" width="50" height="50"
+          /></router-link>
+          <router-link
+            to="/playground"
+            class="text-teal hover:text-teal-300 opacity-75 hover:opacity-100 transition-colors"
             >Playground</router-link
           >
-          <router-link to="/blog" class="hover:text-fg transition-colors">Blog</router-link>
-          <router-link to="/contact" class="hover:text-fg transition-colors pr-6"
+          <router-link
+            to="/blog"
+            class="text-lavender hover:text-lavender-300 hover:text-fg opacity-75 hover:opacity-100 transition-colors"
+            >Blog</router-link
+          >
+          <router-link
+            to="/contact"
+            class="text-peach hover:text-peach-300 opacity-75 hover:opacity-100 transition-colors pr-6"
             >Contact</router-link
           >
         </nav>
